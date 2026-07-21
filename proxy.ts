@@ -5,8 +5,14 @@ export const config = {
   matcher: ["/admin/:path*", "/api/admin/:path*"],
 };
 
+const PUBLIC_ADMIN_PATHS = ["/admin/login"];
+
 export function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;
+
+  if (PUBLIC_ADMIN_PATHS.some((p) => pathname.startsWith(p))) {
+    return NextResponse.next();
+  }
 
   const access = req.cookies.get(ACCESS_COOKIE)?.value;
   const valid = access ? verifyAccessToken(access) : null;
